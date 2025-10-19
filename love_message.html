@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Chúc mừng 20/10 — Bé Nhi của anh</title>
+<style>
+  :root{
+    --bg1:#ffd9e6;
+    --bg2:#ff9db0;
+    --rose1:#ff6b9a;
+    --rose2:#ff8db0;
+    --rose3:#ff4f86;
+    --muted:#6b4a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--muted);display:flex;align-items:center;justify-content:center}
+
+  .wrap{
+    width:min(920px,94vw);
+    padding:28px;
+    border-radius:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.35));
+    box-shadow:0 10px 40px rgba(0,0,0,0.08);
+    position:relative;
+    overflow:visible;
+    text-align:center;
+  }
+
+  h1{font-size:20px;color:#7a2b45;margin-bottom:18px}
+
+  .row{display:flex;gap:30px;justify-content:center;align-items:center}
+  .rose{
+    width:160px;height:160px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .35s cubic-bezier(.2,.9,.2,1),filter .35s,opacity .35s;
+    position:relative;
+    z-index:10;
+  }
+  .rose svg{width:100%;height:100%;transform-origin:50% 60%}
+
+  .rose:hover{transform:scale(1.06)}
+  .dim{opacity:.5;filter:grayscale(.15) blur(.6px) brightness(.92)}
+
+  .petal{transform-origin:50% 60%}
+  .bloom .petal{animation:bloom 650ms cubic-bezier(.22,.9,.2,1) forwards}
+  @keyframes bloom{
+    0%{transform:scale(.6) translateY(12px);opacity:0}
+    60%{transform:scale(1.08) translateY(-6px);opacity:1}
+    100%{transform:scale(1) translateY(0)}
+  }
+
+  .rose.active{
+    z-index:9999;
+    transform:scale(1.12);
+    pointer-events:none;
+  }
+
+  .glow{
+    position:absolute;left:50%;top:26%;transform:translateX(-50%);width:760px;height:260px;border-radius:50%;
+    background:radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), rgba(255,255,255,0) 45%);
+    filter:blur(22px);opacity:.28;pointer-events:none;z-index:3;
+  }
+
+  .msg{
+    position:relative;
+    margin-top:22px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:10px;
+    background:rgba(255,255,255,0.95);
+    border-radius:14px;
+    padding:18px 22px;
+    min-width:340px;
+    box-shadow:0 8px 36px rgba(122,43,69,0.12);
+    z-index:5000;
+  }
+  .msg.show{display:flex; animation:fadeInUp .34s ease forwards}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}}
+
+  .msg h2{margin:0;color:#7a2b45;font-size:18px}
+  .msg p{margin:0;color:#5b3a4a;font-size:16px;line-height:1.45;text-align:center}
+
+  .close{
+    margin-top:12px;background:linear-gradient(90deg,var(--rose3),var(--rose1));border:0;padding:9px 16px;border-radius:10px;color:white;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 18px rgba(255,79,134,0.18);
+  }
+
+  @media (max-width:680px){
+    .row{gap:14px}
+    .rose{width:110px;height:110px}
+    .wrap{padding:18px}
+    .msg{min-width:260px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap">
+    <h1>🌹 Chúc mừng 20/10 Bóe Nhii của anh 💖<br>Em hãy nhấp vào một bông hoa hồng nhé!</h1>
+
+    <div class="glow" aria-hidden="true"></div>
+
+    <div class="row" id="row">
+      <!-- roses injected by JS -->
+    </div>
+
+    <div class="msg" id="msgCard" aria-live="polite" role="dialog" aria-modal="false">
+      <h2 id="msgTitle">Lời chúc</h2>
+      <p id="msgText">...</p>
+      <button id="closeBtn" class="close">Đóng</button>
+    </div>
+  </div>
+
+<script>
+  const messages = [
+    'Chúc em luôn xinh tươi như đóa hoa',
+    'Chúc em luôn bình an và những điều tốt đẹp trong cuộc sống',
+    'Chúc 2 đứa mình luôn đồng hành với nhau dù có chuyện gì đi nữa'
+  ];
+
+  const colors = ['#ff6b9a','#ff8db0','#ff4f86'];
+  const row = document.getElementById('row');
+  const msgCard = document.getElementById('msgCard');
+  const msgText = document.getElementById('msgText');
+  const closeBtn = document.getElementById('closeBtn');
+
+  function makeRose(idx){
+    const div = document.createElement('div');
+    div.className = 'rose';
+    div.setAttribute('data-idx', idx);
+    div.setAttribute('role','button');
+    div.setAttribute('aria-label', 'Hoa ' + (idx+1));
+    const svg = `
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g${idx}" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stop-color="${colors[idx]}" />
+            <stop offset="100%" stop-color="${colors[(idx+1)%colors.length]}" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(100,135)">
+          <path d="M0 0 C -8 -10 -14 -30 -10 -50" stroke="#3f7a55" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.95"/>
+          <path d="M0 0 C 8 -10 14 -30 10 -50" stroke="#3f7a55" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.95"/>
+        </g>
+        <g transform="translate(100,78)">
+          <g class="petalGroup">
+            <path class="petal" d="M0,-8 C18,-22 38,-18 46,-6 C51,4 46,20 28,28 C10,36 -8,34 -22,28 C-40,22 -46,4 -38,-6 C-30,-18 -12,-22 0,-8 Z" fill="url(#g${idx})" opacity="0.98" />
+            <path class="petal" d="M12,-2 C28,-16 46,-12 54,2 C58,12 54,28 36,36 C18,44 0,42 -12,36 C-28,28 -36,12 -28,2 C-20,-12 -6,-14 12,-2 Z" fill="${colors[(idx+1)%colors.length]}" opacity="0.9" transform="rotate(18)"/>
+            <circle cx="0" cy="6" r="6" fill="#ffd9e6" opacity="0.9"/>
+          </g>
+        </g>
+      </svg>
+    `;
+    div.innerHTML = svg;
+    return div;
+  }
+
+  for(let i=0;i<3;i++){
+    const r = makeRose(i);
+    row.appendChild(r);
+  }
+
+  row.addEventListener('click', (ev)=>{
+    const rose = ev.target.closest('.rose');
+    if(!rose) return;
+    const idx = Number(rose.dataset.idx);
+    activate(idx, rose);
+  });
+
+  function activate(idx, roseEl){
+    document.querySelectorAll('.rose').forEach((r,i)=>{
+      if(i===idx){
+        r.classList.add('active','bloom');
+        r.style.transform = 'scale(1.12)';
+      } else {
+        r.classList.add('dim');
+        r.style.transform = 'scale(.92)';
+      }
+    });
+
+    msgText.textContent = messages[idx] || '';
+    msgCard.classList.add('show');
+
+    const svg = roseEl.querySelector('svg');
+    if(svg){
+      svg.animate([
+        { transform: 'scale(1) rotate(0deg)' },
+        { transform: 'scale(1.06) rotate(-3deg)' },
+        { transform: 'scale(1) rotate(0deg)' }
+      ], { duration: 900, easing: 'cubic-bezier(.2,.9,.2,1)'});
+    }
+  }
+
+  closeBtn.addEventListener('click', ()=>{
+    msgCard.classList.remove('show');
+    document.querySelectorAll('.rose').forEach(r=>{
+      r.classList.remove('active','bloom','dim');
+      r.style.transform = 'scale(1)';
+      r.style.pointerEvents = 'auto';
+    });
+  });
+
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape'){
+      if(msgCard.classList.contains('show')) closeBtn.click();
+    }
+  });
+</script>
+</body>
+</html>
